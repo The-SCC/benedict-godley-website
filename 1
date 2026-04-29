@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Benedict Godley | Client-Generating Websites</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: Inter, Arial, sans-serif;
+      background: #050816;
+      color: #ffffff;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(37,99,235,.35), transparent 30%),
+        radial-gradient(circle at 80% 10%, rgba(14,165,233,.25), transparent 30%),
+        radial-gradient(circle at 50% 90%, rgba(59,130,246,.18), transparent 35%);
+      z-index: -2;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(to bottom, black, transparent);
+      z-index: -1;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: 92%;
+      max-width: 1180px;
+      margin: auto;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(18px);
+      background: rgba(5, 8, 22, 0.72);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    nav {
+      min-height: 78px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      font-size: 22px;
+    }
+
+    .logo span {
+      color: #60a5fa;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 26px;
+      color: #cbd5e1;
+      font-size: 14px;
+    }
+
+    .nav-links a:hover {
+      color: #ffffff;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #2563eb, #06b6d4);
+      color: white;
+      padding: 15px 24px;
+      border-radius: 999px;
+      font-weight: 800;
+      box-shadow: 0 18px 45px rgba(37,99,235,.35);
+      transition: .25s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 24px 70px rgba(37,99,235,.48);
+    }
+
+    .btn.secondary {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: none;
+      color: #e5e7eb;
+    }
+
+    .hero {
+      padding: 110px 0 85px;
+      position: relative;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 56px;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      padding: 9px 14px;
+      border-radius: 999px;
+      background: rgba(96,165,250,.12);
+      border: 1px solid rgba(96,165,250,.28);
+      color: #bfdbfe;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      font-size: clamp(44px, 7vw, 82px);
+      line-height: .95;
+      letter-spacing: -0.07em;
+      margin-bottom: 26px;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #ffffff, #93c5fd, #22d3ee);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero p {
+      font-size: 20px;
+      color: #cbd5e1;
+      max-width: 650px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 32px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 42px;
+    }
+
+    .stat {
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .stat strong {
+      font-size: 28px;
+      display: block;
+    }
+
+    .stat span {
+      color: #94a3b8;
+      font-size: 13px;
+    }
+
+    .dashboard {
+      position: relative;
+      border-radius: 28px;
+      padding: 22px;
+      background: linear-gradient(145deg, rgba(255,255,255,.16), rgba(255,255,255,.05));
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow: 0 35px 100px rgba(0,0,0,.35);
+      animation: float 5s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-14px); }
+    }
+
+    .screen {
+      background: #020617;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .screen-top {
+      display: flex;
+      gap: 8px;
+      padding: 16px;
+      background: rgba(255,255,255,.05);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #ef4444;
+    }
+
+    .dot:nth-child(2) { background: #f59e0b; }
+    .dot:nth-child(3) { background: #22c55e; }
+
+    .screen-body {
+      padding: 24px;
+    }
+
+    .metric {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.05);
+      margin-bottom: 14px;
+    }
+
+    .metric span {
+      color: #94a3b8;
+    }
+
+    .metric strong {
+      color: #67e8f9;
+      font-size: 22px;
+    }
+
+    .bar {
+      height: 10px;
+      background: rgba(255,255,255,.08);
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 18px 0;
+    }
+
+    .bar div {
+      height: 100%;
+      width: 76%;
+      background: linear-gradient(90deg, #2563eb, #06b6d4);
+      border-radius: inherit;
+      animation: grow 1.6s ease forwards;
+    }
+
+    @keyframes grow {
+      from { width: 0; }
+      to { width: 76%; }
+    }
+
+    .mini-card {
+      padding: 18px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(37,99,235,.25), rgba(6,182,212,.15));
+      border: 1px solid rgba(255,255,255,.1);
+    }
+
+    section {
+      padding: 86px 0;
+    }
+
+    .section-head {
+      max-width: 760px;
+      margin-bottom: 42px;
+    }
+
+    .section-head h2 {
+      font-size: clamp(34px, 5vw, 56px);
+      line-height: 1;
+      letter-spacing: -0.05em;
+      margin-bottom: 16px;
+    }
+
+    .section-head p {
+      color: #94a3b8;
+      font-size: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .card {
+      position: relative;
+      padding: 28px;
+      border-radius: 24px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.1);
+      transition: .25s ease;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(96,165,250,.25), transparent 35%);
+      opacity: 0;
+      transition: .25s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(96,165,250,.4);
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .card h3,
+    .card p,
+    .card ul {
+      position: relative;
+      z-index: 1;
+    }
+
+    .card h3 {
+      font-size: 23px;
+      margin-bottom: 12px;
+    }
+
+    .card p,
+    .card li {
+      color: #cbd5e1;
+    }
+
+    .card ul {
+      list-style: none;
+      margin-top: 18px;
+    }
+
+    .card li {
+      margin-bottom: 10px;
+    }
+
+    .problem .card {
+      border-left: 4px solid #ef4444;
+    }
+
+    .solution {
+      background: rgba(255,255,255,.03);
+    }
+
+    .steps {
+      counter-reset: step;
+    }
+
+    .step::after {
+      counter-increment: step;
+      content: "0" counter(step);
+      position: absolute;
+      top: 18px;
+      right: 22px;
+      color: rgba(255,255,255,.12);
+      font-size: 52px;
+      font-weight: 900;
+    }
+
+    .testimonial {
+      min-height: 250px;
+    }
+
+    .testimonial strong {
+      display: block;
+      margin-top: 22px;
+      color: #ffffff;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .price-card {
+      padding: 34px;
+      border-radius: 28px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+    }
+
+    .price-card.featured {
+      background: linear-gradient(145deg, rgba(37,99,235,.38), rgba(6,182,212,.16));
+      border-color: rgba(96,165,250,.45);
+      box-shadow: 0 30px 90px rgba(37,99,235,.22);
+    }
+
+    .price {
+      font-size: 46px;
+      font-weight: 900;
+      margin: 18px 0;
+      letter-spacing: -0.05em;
+    }
+
+    .price-card ul {
+      margin: 24px 0;
+      padding-left: 20px;
+      color: #cbd5e1;
+    }
+
+    .price-card li {
+      margin-bottom: 12px;
+    }
+
+    .cta {
+      text-align: center;
+      padding: 100px 20px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(37,99,235,.45), transparent 35%),
+        linear-gradient(135deg, rgba(37,99,235,.35), rgba(6,182,212,.08));
+    }
+
+    .cta h2 {
+      font-size: clamp(38px, 6vw, 68px);
+      line-height: 1;
+      letter-spacing: -0.06em;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .cta p {
+      color: #dbeafe;
+      margin: 22px auto 0;
+      max-width: 650px;
+      font-size: 19px;
+    }
+
+    footer {
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding: 28px 0;
+      color: #94a3b8;
+      text-align: center;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: .7s ease;
+    }
+
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 850px) {
+      .hero-grid,
+      .grid-3,
+      .pricing-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .hero {
+        padding: 72px 0 56px;
+      }
+
+      section {
+        padding: 64px 0;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .dashboard {
+        animation: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="container">
+      <nav>
+        <div class="logo">Benedict <span>Godley</span></div>
+
+        <div class="nav-links">
+          <a href="#problem">Problem</a>
+          <a href="#solution">Solution</a>
+          <a href="#pricing">Pricing</a>
+          <a href="#booking">Book Call</a>
+        </div>
+
+        <a class="btn" href="mailto:benedictgodley@gmail.com?subject=Free Call Request">Book a Free Call</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="reveal">
+        <div class="badge">Websites + automation for small businesses</div>
+        <h1>Turn your website into a <span class="gradient-text">client-generating system.</span></h1>
+        <p>
+          I help gyms, personal trainers, and local service businesses get more enquiries with modern websites, simple booking systems, and optional AI chat support.
+        </p>
+
+        <div class="hero-actions">
+          <a href="mailto:benedictgodley@gmail.com?subject=Free Call Request" class="btn">Book a Free Call →</a>
+          <a href="#solution" class="btn secondary">See How It Works</a>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <strong>24/7</strong>
+            <span>Your site works even when you are busy</span>
+          </div>
+          <div class="stat">
+            <strong>3x</strong>
+            <span>More ways for visitors to become leads</span>
+          </div>
+          <div class="stat">
+            <strong>10 sec</strong>
+            <span>Clear offer visitors understand fast</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard reveal">
+        <div class="screen">
+          <div class="screen-top">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+          </div>
+
+          <div class="screen-body">
+            <div class="metric">
+              <span>Monthly enquiries</span>
+              <strong>+68%</strong>
+            </div>
+
+            <div class="metric">
+              <span>Missed leads reduced</span>
+              <strong>-42%</strong>
+            </div>
+
+            <div class="bar"><div></div></div>
+
+            <div class="mini-card">
+              <strong>New booking request</strong>
+              <p style="color:#cbd5e1; margin-top:8px;">
+                “Hi, I’d like to book a consultation this week.”
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="problem" class="problem">
+    <div class="container">
+      <div class="section-head reveal">
+        <h2>Your website should not be losing you clients.</h2>
+        <p>
+          Small businesses often look great in person but lose trust online because the website is outdated, unclear, or hard to book through.
+        </p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card reveal">
+          <h3>Outdated website</h3>
+          <p>Your first impression feels old, slow, or unfinished. That makes potential clients hesitate.</p>
+        </div>
+
+        <div class="card reveal">
+          <h3>No booking system</h3>
+          <p>People are interested, but they have to message manually. Every extra step loses leads.</p>
+        </div>
+
+        <div class="card reveal">
+          <h3>Only relying on Instagram</h3>
+          <p>Social media gets attention, but your website should turn that attention into bookings.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="solution" class="solution">
+    <div class="container">
+      <div class="section-head reveal">
+        <h2>A modern sales system for local businesses.</h2>
+        <p>
+          Clear message. Premium design. Strong calls to action. Easy booking. Everything built around getting more clients.
+        </p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card reveal">
+          <h3>Modern website</h3>
+          <p>Clean, mobile-first pages that instantly make your business look credible and professional.</p>
+          <ul>
+            <li>✓ Premium visual design</li>
+            <li>✓ Fast loading pages</li>
+            <li>✓ Strong service positioning</li>
+          </ul>
+        </div>
+
+        <div class="card reveal">
+          <h3>Integrated booking</h3>
+          <p>Make it simple for prospects to book calls, consultations, sessions, or quote requests.</p>
+          <ul>
+            <li>✓ Fewer missed enquiries</li>
+            <li>✓ Less back-and-forth</li>
+            <li>✓ Clear next step</li>
+          </ul>
+        </div>
+
+        <div class="card reveal">
+          <h3>Optional AI support</h3>
+          <p>Add a simple assistant that answers common questions and pushes visitors toward booking.</p>
+          <ul>
+            <li>✓ Answers FAQs</li>
+            <li>✓ Saves time</li>
+            <li>✓ Guides visitors</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="section-head reveal">
+        <h2>Built to improve results, not just appearance.</h2>
+        <p>
+          The goal is simple: more bookings, more consistent leads, a stronger first impression, and less wasted time.
+        </p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card reveal">
+          <h3>More bookings</h3>
+          <p>Your main call to action is clear, repeated, and easy to follow.</p>
+        </div>
+
+        <div class="card reveal">
+          <h3>Better leads</h3>
+          <p>Your offer is explained in a way that attracts serious prospects, not time-wasters.</p>
+        </div>
+
+        <div class="card reveal">
+          <h3>More trust</h3>
+          <p>A sharper website makes your business feel more established and reliable.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="steps">
+    <div class="container">
+      <div class="section-head reveal">
+        <h2>How it works.</h2>
+        <p>A straightforward process for busy business owners.</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card step reveal">
+          <h3>We build your site</h3>
+          <p>A professional, mobile-first website focused on your offer, audience, and booking goal.</p>
+        </div>
+
+        <div class="card step reveal">
+          <h3>We optimise for conversions</h3>
+          <p>Clear headlines, service sections, proof, calls to action, and a simple booking path.</p>
+        </div>
+
+        <div class="card step reveal">
+          <h3>You get more clients</h3>
+          <p>Your website becomes a practical sales asset instead of a passive online brochure.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="section-head reveal">
+        <h2>Example client outcomes.</h2>
+        <p>Realistic results from clearer websites, stronger positioning, and easier booking.</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card testimonial reveal">
+          <p>“We stopped sending people to a basic page and launched a site with a proper booking flow. Trial session requests became much more consistent.”</p>
+          <strong>— Independent Gym Owner</strong>
+        </div>
+
+        <div class="card testimonial reveal">
+          <p>“People used to message me and disappear. Now they can see what I offer, trust the process, and book straight away.”</p>
+          <strong>— Personal Trainer</strong>
+        </div>
+
+        <div class="card testimonial reveal">
+          <p>“The new site made us look more professional and reduced the time spent answering the same questions.”</p>
+          <strong>— Local Service Business</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing">
+    <div class="container">
+      <div class="section-head reveal">
+        <h2>Simple pricing.</h2>
+        <p>Start with a one-time website build. Add monthly support when you want ongoing help.</p>
+      </div>
+
+      <div class="pricing-grid">
+        <div class="price-card reveal">
+          <h3>One-Time Build</h3>
+          <div class="price">From £499</div>
+          <p>For businesses that need a stronger online presence and a clear booking goal.</p>
+          <ul>
+            <li>Conversion-focused landing page</li>
+            <li>Mobile-first professional design</li>
+            <li>Lead-focused copy structure</li>
+            <li>Booking call section</li>
+          </ul>
+          <a href="mailto:benedictgodley@gmail.com?subject=Website Build Enquiry" class="btn secondary">Start Project</a>
+        </div>
+
+        <div class="price-card featured reveal">
+          <h3>Website + Booking System</h3>
+          <div class="price">From £799</div>
+          <p>The best option for businesses that want a complete lead-generation system.</p>
+          <ul>
+            <li>Everything in the one-time build</li>
+            <li>Booking flow setup</li>
+            <li>Lead capture form structure</li>
+            <li>Conversion-focused layout</li>
+            <li>Optional AI chat support</li>
+          </ul>
+          <a href="mailto:benedictgodley@gmail.com?subject=Free Call Request" class="btn">Book a Free Call →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta" id="booking">
+    <h2 class="reveal">Ready to get more clients from your website?</h2>
+    <p class="reveal">
+      Book a free call with Benedict Godley and get a clear plan for turning your website into a simple client-generating system.
+    </p>
+    <br />
+    <a href="mailto:benedictgodley@gmail.com?subject=Free Call Request" class="btn reveal">Book a Free Call →</a>
+  </section>
+
+  <footer>
+    <div class="container">
+      © 2026 Benedict Godley · benedictgodley@gmail.com
+    </div>
+  </footer>
+
+  <script>
+    const revealElements = document.querySelectorAll('.reveal');
+
+    const revealOnScroll = () => {
+      revealElements.forEach((element) => {
+        const position = element.getBoundingClientRect().top;
+        const windowHeight = window.innerHeight;
+
+        if (position < windowHeight - 80) {
+          element.classList.add('active');
+        }
+      });
+    };
+
+    window.addEventListener('scroll', revealOnScroll);
+    window.addEventListener('load', revealOnScroll);
+  </script>
+
+</body>
+</html>
